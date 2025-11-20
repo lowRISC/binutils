@@ -4255,6 +4255,16 @@
 #define CSR_VTYPE 0xc21
 #define CSR_VLENB 0xc22
 
+/* Unratified bitmanip 0.93 Zbe instructions */
+/* Note: these are "bext" and "bdep" in Zbe, but renamed as "bext" is also a separate instruction in Zbb */
+#define MATCH_BCOMPRESS 0x8006033
+#define MASK_BCOMPRESS 0xfe00707f
+#define MATCH_BCOMPRESSW 0x800603b
+#define MASK_BCOMPRESSW 0xfe00707f
+#define MATCH_BDECOMPRESS 0x48006033
+#define MASK_BDECOMPRESS 0xfe00707f
+#define MATCH_BDECOMPRESSW 0x4800603b
+#define MASK_BDECOMPRESSW 0xfe00707f
 /* Unratified bitmanip 0.93 Zbf instructions */
 #define MATCH_BFP 0x48007033
 #define MASK_BFP 0xfe00707f
@@ -4966,6 +4976,10 @@ DECLARE_INSN(ssamoswap_d, MATCH_SSAMOSWAP_D, MASK_SSAMOSWAP_D)
 /* Zicfilp instructions.  */
 DECLARE_INSN(lpad, MATCH_LPAD, MASK_LPAD)
 
+/* Unratified bitmanip 0.93 instructions. */
+/* Note: these are "bext" and "bdep" in Zbe, but renamed as "bext" is also a separate instruction in Zbb */
+DECLARE_INSN(bcompress, MATCH_BCOMPRESS, MASK_BCOMPRESS)
+DECLARE_INSN(bdecompress, MATCH_BDECOMPRESS, MASK_BDECOMPRESS)
 /* Unratified bitmanip 0.93 Zbf instructions. */
 DECLARE_INSN(bfp, MATCH_BFP, MASK_BFP)
 DECLARE_INSN(bfpw, MATCH_BFPW, MASK_BFPW)
