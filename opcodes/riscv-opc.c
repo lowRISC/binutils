@@ -3519,6 +3519,13 @@ const struct riscv_opcode riscv_opcodes[] =
 {"crc32c.h",  0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32C_H, MASK_CRC32C_H, match_opcode, 0},
 {"crc32c.w",  0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32C_W, MASK_CRC32C_W, match_opcode, 0},
 {"crc32c.d", 64, INSN_CLASS_ZBR, "d,s", MATCH_CRC32C_D, MASK_CRC32C_D, match_opcode, 0},
+/* Unratified Zbt instructions */
+{"cmov",      0, INSN_CLASS_ZBT, "d,t,s,r", MATCH_CMOV, MASK_CMOV, match_opcode, 0},
+{"cmix",      0, INSN_CLASS_ZBT, "d,t,s,r", MATCH_CMIX, MASK_CMIX, match_opcode, 0},
+{"fsl",       0, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSL, MASK_FSL, match_opcode, 0},
+{"fslw",     64, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSLW, MASK_FSLW, match_opcode, 0},
+{"fsr",       0, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSR, MASK_FSR, match_opcode, 0},
+{"fsrw",     64, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSRW, MASK_FSRW, match_opcode, 0},
 
 /* Terminate the list.  */
 {0, 0, INSN_CLASS_NONE, 0, 0, 0, 0, 0}

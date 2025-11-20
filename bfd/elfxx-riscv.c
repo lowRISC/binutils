@@ -1382,6 +1382,7 @@ static struct riscv_supported_ext riscv_supported_std_z_ext[] =
   {"zbc",		ISA_SPEC_CLASS_DRAFT,		1, 0,  0 },
   {"zbs",		ISA_SPEC_CLASS_DRAFT,		1, 0,  0 },
   {"zbr",		ISA_SPEC_CLASS_DRAFT,		0, 93, 0 },
+  {"zbt",		ISA_SPEC_CLASS_DRAFT,		0, 93, 0 },
   {"zbkb",		ISA_SPEC_CLASS_DRAFT,		1, 0,  0 },
   {"zbkc",		ISA_SPEC_CLASS_DRAFT,		1, 0,  0 },
   {"zbkx",		ISA_SPEC_CLASS_DRAFT,		1, 0,  0 },
@@ -2682,6 +2683,8 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
       return riscv_subset_supports (rps, "zbs");
     case INSN_CLASS_ZBR:
       return riscv_subset_supports (rps, "zbr");
+    case INSN_CLASS_ZBT:
+      return riscv_subset_supports (rps, "zbt");
     case INSN_CLASS_ZBKB:
       return riscv_subset_supports (rps, "zbkb");
     case INSN_CLASS_ZBKC:
@@ -3002,6 +3005,8 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
       return "zbs";
     case INSN_CLASS_ZBR:
       return "zbr";
+    case INSN_CLASS_ZBT:
+      return "zbt";
     case INSN_CLASS_ZBKB:
       return "zbkb";
     case INSN_CLASS_ZBKC:
