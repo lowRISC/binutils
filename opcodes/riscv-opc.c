@@ -3510,6 +3510,16 @@ const struct riscv_opcode riscv_opcodes[] =
 {"sf.vfnrclip.xu.f.qf", 0, INSN_CLASS_XSFVFNRCLIPXFQF, "Vd,Vt,S", MATCH_SFVFNRCLIPXUFQF, MASK_SFVFNRCLIPXUFQF, match_opcode, 0},
 {"sf.vfnrclip.x.f.qf",  0, INSN_CLASS_XSFVFNRCLIPXFQF, "Vd,Vt,S", MATCH_SFVFNRCLIPXFQF, MASK_SFVFNRCLIPXFQF, match_opcode, 0},
 
+/* Unratified Zbr instructions */
+{"crc32.b",   0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32_B, MASK_CRC32_B, match_opcode, 0},
+{"crc32.h",   0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32_H, MASK_CRC32_H, match_opcode, 0},
+{"crc32.w",   0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32_W, MASK_CRC32_W, match_opcode, 0},
+{"crc32.d",  64, INSN_CLASS_ZBR, "d,s", MATCH_CRC32_D, MASK_CRC32_D, match_opcode, 0},
+{"crc32c.b",  0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32C_B, MASK_CRC32C_B, match_opcode, 0},
+{"crc32c.h",  0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32C_H, MASK_CRC32C_H, match_opcode, 0},
+{"crc32c.w",  0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32C_W, MASK_CRC32C_W, match_opcode, 0},
+{"crc32c.d", 64, INSN_CLASS_ZBR, "d,s", MATCH_CRC32C_D, MASK_CRC32C_D, match_opcode, 0},
+
 /* Terminate the list.  */
 {0, 0, INSN_CLASS_NONE, 0, 0, 0, 0, 0}
 };
