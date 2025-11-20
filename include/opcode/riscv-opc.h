@@ -4255,6 +4255,11 @@
 #define CSR_VTYPE 0xc21
 #define CSR_VLENB 0xc22
 
+/* Unratified bitmanip 0.93 Zbf instructions */
+#define MATCH_BFP 0x48007033
+#define MASK_BFP 0xfe00707f
+#define MATCH_BFPW 0x4800703b
+#define MASK_BFPW 0xfe00707f
 /* Unratified bitmanip 0.93 Zbr instructions */
 #define MATCH_CRC32_B 0x61001013
 #define MASK_CRC32_B 0xfff0707f
@@ -4961,6 +4966,9 @@ DECLARE_INSN(ssamoswap_d, MATCH_SSAMOSWAP_D, MASK_SSAMOSWAP_D)
 /* Zicfilp instructions.  */
 DECLARE_INSN(lpad, MATCH_LPAD, MASK_LPAD)
 
+/* Unratified bitmanip 0.93 Zbf instructions. */
+DECLARE_INSN(bfp, MATCH_BFP, MASK_BFP)
+DECLARE_INSN(bfpw, MATCH_BFPW, MASK_BFPW)
 /* Unratified bitmanip 0.93 Zbr instructions. */
 DECLARE_INSN(crc32_b, MATCH_CRC32_B, MASK_CRC32_B)
 DECLARE_INSN(crc32_d, MATCH_CRC32_D, MASK_CRC32_D)

@@ -3510,6 +3510,9 @@ const struct riscv_opcode riscv_opcodes[] =
 {"sf.vfnrclip.xu.f.qf", 0, INSN_CLASS_XSFVFNRCLIPXFQF, "Vd,Vt,S", MATCH_SFVFNRCLIPXUFQF, MASK_SFVFNRCLIPXUFQF, match_opcode, 0},
 {"sf.vfnrclip.x.f.qf",  0, INSN_CLASS_XSFVFNRCLIPXFQF, "Vd,Vt,S", MATCH_SFVFNRCLIPXFQF, MASK_SFVFNRCLIPXFQF, match_opcode, 0},
 
+/* Unratified Zbf instructions */
+{"bfp",       0, INSN_CLASS_ZBF, "d,s,t", MATCH_BFP, MASK_BFP, match_opcode, 0},
+{"bfpw",     64, INSN_CLASS_ZBF, "d,s,t", MATCH_BFPW, MASK_BFPW, match_opcode, 0},
 /* Unratified Zbr instructions */
 {"crc32.b",   0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32_B, MASK_CRC32_B, match_opcode, 0},
 {"crc32.h",   0, INSN_CLASS_ZBR, "d,s", MATCH_CRC32_H, MASK_CRC32_H, match_opcode, 0},
