@@ -3524,8 +3524,12 @@ const struct riscv_opcode riscv_opcodes[] =
 {"cmix",      0, INSN_CLASS_ZBT, "d,t,s,r", MATCH_CMIX, MASK_CMIX, match_opcode, 0},
 {"fsl",       0, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSL, MASK_FSL, match_opcode, 0},
 {"fslw",     64, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSLW, MASK_FSLW, match_opcode, 0},
+{"fsri",      0, INSN_CLASS_ZBT, "d,s,r,>", MATCH_FSRI, MASK_FSRI, match_opcode, 0},
 {"fsr",       0, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSR, MASK_FSR, match_opcode, 0},
+{"fsr",       0, INSN_CLASS_ZBT, "d,s,r,>", MATCH_FSRI, MASK_FSRI, match_opcode, INSN_ALIAS},
+{"fsriw",    64, INSN_CLASS_ZBT, "d,s,r,<", MATCH_FSRIW, MASK_FSRIW, match_opcode, 0},
 {"fsrw",     64, INSN_CLASS_ZBT, "d,s,r,t", MATCH_FSRW, MASK_FSRW, match_opcode, 0},
+{"fsrw",     64, INSN_CLASS_ZBT, "d,s,r,<", MATCH_FSRIW, MASK_FSRIW, match_opcode, INSN_ALIAS},
 
 /* Terminate the list.  */
 {0, 0, INSN_CLASS_NONE, 0, 0, 0, 0, 0}
