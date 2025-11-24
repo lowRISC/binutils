@@ -3510,6 +3510,25 @@ const struct riscv_opcode riscv_opcodes[] =
 {"sf.vfnrclip.xu.f.qf", 0, INSN_CLASS_XSFVFNRCLIPXFQF, "Vd,Vt,S", MATCH_SFVFNRCLIPXUFQF, MASK_SFVFNRCLIPXUFQF, match_opcode, 0},
 {"sf.vfnrclip.x.f.qf",  0, INSN_CLASS_XSFVFNRCLIPXFQF, "Vd,Vt,S", MATCH_SFVFNRCLIPXFQF, MASK_SFVFNRCLIPXFQF, match_opcode, 0},
 
+/* Unratified Zbp instructions */
+{"packu",         0, INSN_CLASS_ZBP, "d,s,t", MATCH_PACKU, MASK_PACKU, match_opcode, 0},
+{"packuw",       64, INSN_CLASS_ZBP, "d,s,t", MATCH_PACKUW, MASK_PACKUW, match_opcode, 0},
+{"slo",           0, INSN_CLASS_ZBP, "d,s,t", MATCH_SLO, MASK_SLO, match_opcode, 0},
+{"slow",         64, INSN_CLASS_ZBP, "d,s,t", MATCH_SLOW, MASK_SLOW, match_opcode, 0},
+{"sro",           0, INSN_CLASS_ZBP, "d,s,t", MATCH_SRO, MASK_SRO, match_opcode, 0},
+{"srow",         64, INSN_CLASS_ZBP, "d,s,t", MATCH_SROW, MASK_SROW, match_opcode, 0},
+{"grev",          0, INSN_CLASS_ZBP, "d,s,t", MATCH_GREV, MASK_GREV, match_opcode, 0},
+{"grevw",        64, INSN_CLASS_ZBP, "d,s,t", MATCH_GREVW, MASK_GREVW, match_opcode, 0},
+{"gorc",          0, INSN_CLASS_ZBP, "d,s,t", MATCH_GORC, MASK_GORC, match_opcode, 0},
+{"gorcw",        64, INSN_CLASS_ZBP, "d,s,t", MATCH_GORCW, MASK_GORCW, match_opcode, 0},
+{"shfl",          0, INSN_CLASS_ZBP, "d,s,t", MATCH_SHFL, MASK_SHFL, match_opcode, 0},
+{"shflw",        64, INSN_CLASS_ZBP, "d,s,t", MATCH_SHFLW, MASK_SHFLW, match_opcode, 0},
+{"unshfl",        0, INSN_CLASS_ZBP, "d,s,t", MATCH_UNSHFL, MASK_UNSHFL, match_opcode, 0},
+{"unshflw",      64, INSN_CLASS_ZBP, "d,s,t", MATCH_UNSHFLW, MASK_UNSHFLW, match_opcode, 0},
+{"xperm.n",       0, INSN_CLASS_ZBP, "d,s,t", MATCH_XPERM_N, MASK_XPERM_N, match_opcode, 0},
+{"xperm.b",       0, INSN_CLASS_ZBP, "d,s,t", MATCH_XPERM_B, MASK_XPERM_B, match_opcode, 0},
+{"xperm.h",       0, INSN_CLASS_ZBP, "d,s,t", MATCH_XPERM_H, MASK_XPERM_H, match_opcode, 0},
+{"xperm.w",      64, INSN_CLASS_ZBP, "d,s,t", MATCH_XPERM_W, MASK_XPERM_W, match_opcode, 0},
 /* Unratified Zbe instructions */
 /* Note: these are "bext" and "bdep" in Zbe, but renamed as "bext" is also a separate instruction in Zbb */
 {"bcompress",     0, INSN_CLASS_ZBE, "d,s,t", MATCH_BCOMPRESS, MASK_BCOMPRESS, match_opcode, 0},
