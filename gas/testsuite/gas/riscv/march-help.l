@@ -49,6 +49,11 @@ All available -march extensions for RISC-V:
 	zba                                     1.0
 	zbc                                     1.0
 	zbs                                     1.0
+	zbp                                     0.93
+	zbe                                     0.93
+	zbf                                     0.93
+	zbr                                     0.93
+	zbt                                     0.93
 	zbkb                                    1.0
 	zbkc                                    1.0
 	zbkx                                    1.0
