@@ -2703,6 +2703,13 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
     case INSN_CLASS_ZBB_OR_ZBKB:
       return (riscv_subset_supports (rps, "zbb")
 	      || riscv_subset_supports (rps, "zbkb"));
+    case INSN_CLASS_ZBP_OR_ZBKB:
+      return (riscv_subset_supports (rps, "zbp")
+	      || riscv_subset_supports (rps, "zbkb"));
+    case INSN_CLASS_ZBB_OR_ZBP_OR_ZBKB:
+      return (riscv_subset_supports (rps, "zbb")
+	      || riscv_subset_supports (rps, "zbp")
+	      || riscv_subset_supports (rps, "zbkb"));
     case INSN_CLASS_ZBC_OR_ZBKC:
       return (riscv_subset_supports (rps, "zbc")
 	      || riscv_subset_supports (rps, "zbkc"));
@@ -3030,6 +3037,10 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
       return "zbkx";
     case INSN_CLASS_ZBB_OR_ZBKB:
       return _("zbb' or `zbkb");
+    case INSN_CLASS_ZBP_OR_ZBKB:
+      return _("zbp' or `zbkb");
+    case INSN_CLASS_ZBB_OR_ZBP_OR_ZBKB:
+      return _("zbb' or `zbp' or `zbkb");
     case INSN_CLASS_ZBC_OR_ZBKC:
       return _("zbc' or `zbkc");
     case INSN_CLASS_ZKND:
