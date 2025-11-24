@@ -1575,6 +1575,7 @@ validate_riscv_insn (const struct riscv_opcode *opc, int length)
 	case ')': break;
 	case '{': break;
 	case '}': break;
+	case '_':
 	case '<': USE_BITS (OP_MASK_SHAMTW, OP_SH_SHAMTW); break;
 	case '>': USE_BITS (OP_MASK_SHAMT, OP_SH_SHAMT); break;
 	case 'A': break; /* Macro operand, must be symbol.  */
@@ -3439,6 +3440,17 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 	      if (*asarg++ == *oparg)
 		continue;
 	      break;
+
+	    case '_': /* Shift amount, 0 - (XLEN/2)-1. */
+	      my_getExpression (imm_expr, asarg);
+	      check_absolute_expr (ip, imm_expr, false);
+	      if ((unsigned long) imm_expr->X_add_number >= (xlen >> 1))
+		as_bad (_("improper shift amount (%"PRIu64")"),
+			imm_expr->X_add_number);
+	      INSERT_OPERAND (SHAMTW, *ip, imm_expr->X_add_number);
+	      imm_expr->X_op = O_absent;
+	      asarg = expr_parse_end;
+	      continue;
 
 	    case '<': /* Shift amount, 0 - 31.  */
 	      my_getExpression (imm_expr, asarg);

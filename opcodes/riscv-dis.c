@@ -607,6 +607,7 @@ print_insn_args (const char *oparg, insn_t l, bfd_vma pc, disassemble_info *info
 		 EXTRACT_OPERAND (SHAMT, l));
 	  break;
 
+	case '_':
 	case '<':
 	  print (info->stream, dis_style_immediate, "0x%x",
 		 EXTRACT_OPERAND (SHAMTW, l));
