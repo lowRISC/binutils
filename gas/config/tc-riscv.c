@@ -68,6 +68,7 @@ enum riscv_csr_class
   CSR_CLASS_NONE,
 
   CSR_CLASS_I,
+  CSR_CLASS_OTBN, /* OTBN */
   CSR_CLASS_I_32,	/* rv32 only */
   CSR_CLASS_F,		/* f-ext only */
   CSR_CLASS_ZKR,	/* zkr only */
@@ -170,6 +171,9 @@ static const char *default_arch_with_ext = DEFAULT_RISCV_ARCH_WITH_EXT;
 static const char *file_arch_str = NULL;
 static enum riscv_spec_class default_isa_spec = ISA_SPEC_CLASS_NONE;
 static enum riscv_spec_class default_priv_spec = PRIV_SPEC_CLASS_NONE;
+
+/* Global flag indicating whether we are compiling OTBN code. */
+static bool riscv_arch_is_otbn = false;
 
 static unsigned xlen = 0; /* The width of an x-register.  */
 static unsigned abi_xlen = 0; /* The width of a pointer in the ABI.  */
@@ -370,6 +374,8 @@ riscv_set_arch (const char *s)
   riscv_parse_subset (&riscv_rps_as, s);
   riscv_set_arch_str (&file_arch_str);
   riscv_set_arch_str (&riscv_rps_as.subset_list->arch_str);
+
+  riscv_arch_is_otbn = strcmp(s, "rv32+") == 0;
 
   riscv_set_rvc (riscv_subset_supports (&riscv_rps_as, "c")
 		 || riscv_subset_supports (&riscv_rps_as, "zca"));
@@ -957,6 +963,9 @@ opcode_name_lookup (char **s)
 enum reg_class
 {
   RCLASS_GPR,
+  RCLASS_WDR,
+  RCLASS_WDR_Q,
+  RCLASS_WDR_H,
   RCLASS_FPR,
   RCLASS_VECR,
   RCLASS_VECM,
@@ -1061,6 +1070,9 @@ riscv_csr_address (const char *csr_name,
     case CSR_CLASS_I:
       need_check_version = true;
       extension = "i";
+      break;
+    case CSR_CLASS_OTBN:
+      extension = "+";
       break;
     case CSR_CLASS_H_32:
       is_rv32_only = true;
@@ -1570,6 +1582,89 @@ validate_riscv_insn (const struct riscv_opcode *opc, int length)
 	      goto unknown_validate_operand;
 	    }
 	  break; /* end RVV */
+
+    /*
+     * OTBN
+     */
+
+   case '+':
+    switch (*++oparg) {
+    case 'a':
+      USE_BITS(OP_MASK_BN_WRD, OP_SH_BN_WRD);
+      break;
+    case 'h':
+      USE_BITS(OP_MASK_BN_WRD, OP_SH_BN_WRD);
+      USE_BITS(OP_MASK_BN_MULQACC_SO_DH, OP_SH_BN_MULQACC_SO_DH);
+      break;
+    case 'b':
+      USE_BITS(OP_MASK_BN_WRS1, OP_SH_BN_WRS1);
+      break;
+    case 'c':
+      USE_BITS(OP_MASK_BN_WRS2, OP_SH_BN_WRS2);
+      break;
+    case 's':
+      USE_BITS(OP_MASK_BN_WRS2, OP_SH_BN_WRS2);
+      USE_BITS(OP_MASK_BN_SHIFT_TYPE, OP_SH_BN_SHIFT_TYPE);
+      USE_BITS(OP_MASK_BN_SHIFT_AMOUNT, OP_SH_BN_SHIFT_AMOUNT);
+      break;
+    case 't':
+      USE_BITS(OP_MASK_BN_WRS2, OP_SH_BN_WRS2);
+      USE_BITS(OP_MASK_BN_RSHI_IMM0, OP_SH_BN_RSHI_IMM0);
+      USE_BITS(OP_MASK_BN_RSHI_IMM1, OP_SH_BN_RSHI_IMM1);
+      break;
+    case 'e':
+      USE_BITS(OP_MASK_BN_WRS2, OP_SH_BN_WRS2);
+      USE_BITS(OP_MASK_BN_Q2, OP_SH_BN_Q2);
+      break;
+    case 'f':
+      USE_BITS(OP_MASK_BN_WRS1, OP_SH_BN_WRS1);
+      USE_BITS(OP_MASK_BN_Q1, OP_SH_BN_Q1);
+      break;
+    case '>':
+      USE_BITS(OP_MASK_BN_ACC_SH, OP_SH_BN_ACC_SH);
+      break;
+    case 'i':
+      USE_BITS(OP_MASK_BN_WRS2, OP_SH_BN_WRS2);
+      USE_BITS(OP_MASK_BN_GRD_INC, OP_SH_BN_GRD_INC);
+      break;
+    case 'j':
+      USE_BITS(OP_MASK_BN_WRS1, OP_SH_BN_WRS1);
+      USE_BITS(OP_MASK_BN_GRS_INC, OP_SH_BN_GRS_INC);
+      break;
+    case 'k':
+      USE_BITS(OP_MASK_BN_WRS1, OP_SH_BN_WRS1);
+      USE_BITS(OP_MASK_BN_INC1, OP_SH_BN_INC1);
+      break;
+    case 'o':
+      USE_BITS(OP_MASK_BN_OFF0, OP_SH_BN_OFF0);
+      USE_BITS(OP_MASK_BN_OFF1, OP_SH_BN_OFF1);
+      break;
+    case 'B':
+      USE_BITS(OP_MASK_LOOP_SZ, OP_SH_LOOP_SZ);
+      break;
+    case 'J':
+      USE_BITS(OP_MASK_LOOP_ITS0, OP_SH_LOOP_ITS0);
+      USE_BITS(OP_MASK_LOOP_ITS1, OP_SH_LOOP_ITS1);
+      break;
+    case 'C':
+      USE_BITS(OP_MASK_CSR, OP_SH_CSR);
+      break;
+    case 'E':
+      USE_BITS(OP_MASK_BN_WSR, OP_SH_BN_WSR);
+      break;
+    case 'I':
+      USE_BITS(OP_MASK_BN_IMM, OP_SH_BN_IMM);
+      break;
+    case 'F':
+      USE_BITS(OP_MASK_BN_FLAG_GROUP, OP_SH_BN_FLAG_GROUP);
+      break;
+    case 'Z':
+      USE_BITS(OP_MASK_BN_FLAG_SEL, OP_SH_BN_FLAG_SEL);
+      USE_BITS(OP_MASK_BN_FLAG_GROUP, OP_SH_BN_FLAG_GROUP);
+      break;
+    }
+    break; /* end OTBN */
+
 	case ',': break;
 	case '(': break;
 	case ')': break;
@@ -1907,6 +2002,9 @@ md_begin (void)
   hash_reg_names (RCLASS_FPR, riscv_fpr_names_abi, NFPR);
   hash_reg_names (RCLASS_VECR, riscv_vecr_names_numeric, NVECR);
   hash_reg_names (RCLASS_VECM, riscv_vecm_names_numeric, NVECM);
+  hash_reg_names(RCLASS_WDR, riscv_wdr_names_numeric, NWDR);
+  hash_reg_names(RCLASS_WDR_Q, riscv_wdr_q_names_numeric, NWDRQ);
+  hash_reg_names(RCLASS_WDR_H, riscv_wdr_h_names_numeric, NWDRH);
   /* Add "fp" as an alias for "s0".  */
   hash_reg_name (RCLASS_GPR, "fp", 8);
 
@@ -2187,8 +2285,10 @@ pcrel_access (int destreg, int tempreg, expressionS *ep,
   ep2.X_add_symbol = make_internal_label ();
   ep2.X_add_number = 0;
 
-  macro_build (ep, "auipc", "d,u", tempreg, hi_reloc);
-  macro_build (&ep2, lo_insn, lo_pattern, destreg, tempreg, lo_reloc);
+  /* Cannot use the `auipc` instruction for the `la` macro in OTBN code. */
+  macro_build(ep, riscv_arch_is_otbn ? "lui" : "auipc", "d,u,", tempreg,
+              hi_reloc);
+  macro_build(&ep2, lo_insn, lo_pattern, destreg, tempreg, lo_reloc);
 }
 
 static void
@@ -2841,6 +2941,7 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
   error.missing_ext = NULL;
   /* Indicate we are assembling instruction with CSR.  */
   bool insn_with_csr = false;
+  bool insn_bn_gpr_inc = false;
 
   /* Parse the name of the instruction.  Terminate the string if whitespace
      is found so that str_hash_find only sees the name part of the string.  */
@@ -3425,10 +3526,260 @@ riscv_ip (char *str, struct riscv_cl_insn *ip, expressionS *imm_expr,
 		}
 	      break; /* end RVV */
 
+    /*
+     * OTBN
+     */
+
+    case '+':
+      switch (*++oparg) {
+      case 'a':
+      case 'b':
+      case 'c':
+        if (!reg_lookup(&asarg, RCLASS_WDR, &regno)) {
+          break;
+        }
+        if (*oparg == 'a') {
+          INSERT_OPERAND(BN_WRD, *ip, regno);
+        } else if (*oparg == 'b') {
+          INSERT_OPERAND(BN_WRS1, *ip, regno);
+        } else {
+          INSERT_OPERAND(BN_WRS2, *ip, regno);
+        }
+        continue;
+      case 'e':
+      case 'f':
+        if (!reg_lookup(&asarg, RCLASS_WDR_Q, &regno)) {
+          break;
+        }
+        if (*oparg == 'e') {
+          INSERT_OPERAND(BN_WRS1, *ip, regno >> 2);
+          INSERT_OPERAND(BN_Q1, *ip, regno & 0x3);
+        } else {
+          INSERT_OPERAND(BN_WRS2, *ip, regno >> 2);
+          INSERT_OPERAND(BN_Q2, *ip, regno & 0x3);
+        }
+        continue;
+      case 'h': {
+        if (!reg_lookup(&asarg, RCLASS_WDR_H, &regno)) {
+          break;
+        }
+        INSERT_OPERAND(BN_WRD, *ip, regno >> 1);
+        INSERT_OPERAND(BN_MULQACC_SO_DH, *ip, regno & 0x1);
+        continue;
+      }
+
+      case 's':
+        if (!reg_lookup(&asarg, RCLASS_WDR, &regno)) {
+          break;
+        }
+        INSERT_OPERAND(RS2, *ip, regno);
+
+        unsigned long shift_type = 0;
+        bool has_shift = false;
+        if ((*asarg == '>') && (*(asarg + 1) == '>')) {
+          asarg += 2;
+          shift_type = 1;
+          has_shift = true;
+        } else if ((*asarg == '<') && (*(asarg + 1) == '<')) {
+          asarg += 2;
+          has_shift = true;
+        }
+        INSERT_OPERAND(SHIFT_TYPE, *ip, shift_type);
+
+        if (has_shift) {
+          my_getExpression(imm_expr, asarg);
+          check_absolute_expr(ip, imm_expr, false);
+          unsigned long shift_amount = imm_expr->X_add_number;
+          if ((shift_amount & 0x7) != 0 || shift_amount > 248) {
+            as_bad(_("improper shift amount (%" PRIu64 ")"), shift_amount);
+          }
+          imm_expr->X_op = O_absent;
+          asarg = expr_parse_end;
+          INSERT_OPERAND(SHIFT_AMOUNT, *ip, shift_amount >> 3);
+        }
+        continue;
+
+      case 't': {
+        if (!reg_lookup(&asarg, RCLASS_WDR, &regno)) {
+          break;
+        }
+        INSERT_OPERAND(BN_WRS2, *ip, regno);
+
+        if ((*asarg == '>') && (*(asarg + 1) == '>')) {
+          asarg += 2;
+
+          my_getExpression(imm_expr, asarg);
+          check_absolute_expr(ip, imm_expr, false);
+          unsigned long shift_amount = imm_expr->X_add_number;
+          if (shift_amount > 255) {
+            as_bad(_("improper shift amount (%" PRIu64 ")"), shift_amount);
+          }
+          imm_expr->X_op = O_absent;
+          asarg = expr_parse_end;
+          INSERT_OPERAND(BN_RSHI_IMM0, *ip, shift_amount & 0x1);
+          INSERT_OPERAND(BN_RSHI_IMM1, *ip, shift_amount >> 1);
+          continue;
+        }
+        break;
+      }
+
+      case '>': {
+        my_getExpression(imm_expr, asarg);
+        check_absolute_expr(ip, imm_expr, false);
+        long int imm = imm_expr->X_add_number;
+
+        if ((imm < 0) || (imm > 192) || ((imm & 0x3f) != 0)) {
+          as_bad(_("improper shift amount (%" PRIi64 ")"), imm);
+        }
+
+        INSERT_OPERAND(BN_ACC_SH, *ip, imm >> 6);
+
+        imm_expr->X_op = O_absent;
+        asarg = expr_parse_end;
+        continue;
+      }
+
+      case 'i':
+      case 'j':
+      case 'k':
+        if (!reg_lookup(&asarg, RCLASS_GPR, &regno)) {
+          break;
+        }
+
+        bool gpr_inc = false;
+        if ((*asarg == '+') && (*(asarg + 1) == '+')) {
+          if (insn_bn_gpr_inc) {
+            as_bad("both gpr increments cannot be specified together");
+            break;
+          }
+          asarg += 2;
+          gpr_inc = true;
+        }
+
+        if (*oparg == 'i') {
+          INSERT_OPERAND(BN_WRS2, *ip, regno);
+          INSERT_OPERAND(BN_GRD_INC, *ip, gpr_inc);
+          insn_bn_gpr_inc = gpr_inc;
+        } else if (*oparg == 'j') {
+          INSERT_OPERAND(BN_WRS1, *ip, regno);
+          INSERT_OPERAND(BN_GRS_INC, *ip, gpr_inc);
+          insn_bn_gpr_inc = false;
+        } else {
+          INSERT_OPERAND(BN_WRS1, *ip, regno);
+          INSERT_OPERAND(BN_INC1, *ip, gpr_inc);
+          insn_bn_gpr_inc = false;
+        }
+        continue;
+      case 'o':
+        my_getExpression(imm_expr, asarg);
+        check_absolute_expr(ip, imm_expr, false);
+        int off = imm_expr->X_add_number;
+        if (((off & 0x1f) != 0) || (off < -16384) || (off > 16352)) {
+          as_bad(_("improper offset amount (%" PRIu64 ")"),
+                 imm_expr->X_add_number);
+          break;
+        }
+        INSERT_OPERAND(OFF0, *ip, off >> 5);
+        INSERT_OPERAND(OFF1, *ip, (off >> 5) >> 7);
+        imm_expr->X_op = O_absent;
+        asarg = expr_parse_end;
+        continue;
+      case 'I': {
+        my_getExpression(imm_expr, asarg);
+        check_absolute_expr(ip, imm_expr, true);
+        unsigned long imm = imm_expr->X_add_number;
+        if (imm > 1024)
+          as_bad(_("improper CSR address (%" PRIu64 ")"), imm);
+        INSERT_OPERAND(BN_IMM, *ip, imm);
+        imm_expr->X_op = O_absent;
+        asarg = expr_parse_end;
+        continue;
+      }
+
+      case 'B': {
+        my_getExpression(imm_expr, asarg);
+        check_absolute_expr(ip, imm_expr, true);
+        unsigned long sz = imm_expr->X_add_number;
+        if (sz < 1 || sz > 4096)
+          as_bad(_("improper loop body size (%" PRIu64 ")"), sz);
+
+        INSERT_OPERAND(LOOP_SZ, *ip, sz - 1);
+        imm_expr->X_op = O_absent;
+        asarg = expr_parse_end;
+        continue;
+      }
+      case 'J': {
+        my_getExpression(imm_expr, asarg);
+        check_absolute_expr(ip, imm_expr, true);
+        unsigned long its = imm_expr->X_add_number;
+        if (its > 1023)
+          as_bad(_("improper loop iteration number (%" PRIu64 ")"), its);
+
+        INSERT_OPERAND(LOOP_ITS0, *ip, its & 0x1f);
+        INSERT_OPERAND(LOOP_ITS1, *ip, (its >> 5) & 0x1f);
+        imm_expr->X_op = O_absent;
+        asarg = expr_parse_end;
+        continue;
+      }
+
+      case 'C':
+        insn_with_csr = true;
+        if (reg_lookup(&asarg, RCLASS_CSR, &regno)) {
+          INSERT_OPERAND(CSR, *ip, regno);
+        } else {
+          my_getExpression(imm_expr, asarg);
+          check_absolute_expr(ip, imm_expr, true);
+          if ((unsigned long)imm_expr->X_add_number > 0xfff)
+            as_bad(_("improper CSR address (%" PRIu64 ")"),
+                   imm_expr->X_add_number);
+          INSERT_OPERAND(CSR, *ip, imm_expr->X_add_number);
+          imm_expr->X_op = O_absent;
+          asarg = expr_parse_end;
+        }
+        continue;
+
+      case 'E': {
+        if (!arg_lookup(&asarg, riscv_otbn_wsr, ARRAY_SIZE(riscv_otbn_wsr),
+                        &regno)) {
+          as_bad("unknown wsr");
+          break;
+        }
+        INSERT_OPERAND(BN_WSR, *ip, regno);
+      }
+      continue;
+
+      case 'F':
+        // The flag group operand is optional.
+        if (*asarg == '\0') {
+          continue;
+        }
+        if (!arg_lookup(&asarg, riscv_otbn_fg, ARRAY_SIZE(riscv_otbn_fg),
+                        &regno)) {
+          as_bad("flag group must be either FG0 or FG1");
+          break;
+        }
+        INSERT_OPERAND(FLAG_GROUP, *ip, regno);
+        continue;
+
+      case 'Z':
+        if (!arg_lookup(&asarg, riscv_otbn_sel_fg,
+                        ARRAY_SIZE(riscv_otbn_sel_fg), &regno)) {
+          as_bad("unknown selection bit");
+          break;
+        }
+        INSERT_OPERAND(BN_FLAG_SEL, *ip, regno & 0x3);
+        INSERT_OPERAND(BN_FLAG_GROUP, *ip, (regno >> 2) & 0x1);
+        continue;
+      }
+      break; /* end OTBN */
+
 	    case ',':
 	      if (*asarg++ == *oparg)
 		continue;
 	      asarg--;
+        // Allow for optional trailing operands.
+        if (*asarg == '\0')
+          continue;
 	      break;
 
 	    case '(':
@@ -4815,13 +5166,15 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg)
     case BFD_RELOC_RISCV_PCREL_HI20:
       /* Record and evaluate the pcrel_hi relocation with local symbol.
 	 Fill in a tentative value to improve objdump readability for -mrelax,
-	 and set fx_done for -mno-relax.  */
-      if (fixP->fx_addsy
-	  && S_IS_LOCAL (fixP->fx_addsy)
-	  && S_GET_SEGMENT (fixP->fx_addsy) == seg)
+	 and set fx_done for -mno-relax.
+   If we are compiling OTBN code, do not add the offset to the PC. */
+      if (fixP->fx_addsy &&
+          ((S_IS_LOCAL(fixP->fx_addsy) && S_GET_SEGMENT(fixP->fx_addsy) == seg)
+           || riscv_arch_is_otbn))
 	{
-	  bfd_vma target = S_GET_VALUE (fixP->fx_addsy) + *valP;
-	  bfd_vma value = target - md_pcrel_from (fixP);
+      bfd_vma target = S_GET_VALUE(fixP->fx_addsy) + *valP;
+      bfd_vma value =
+          riscv_arch_is_otbn ? target : target - md_pcrel_from(fixP);
 
 	  /* Record PCREL_HI20.  */
 	  if (!riscv_record_pcrel_fixup (riscv_pcrel_hi_fixup_hash,
@@ -4844,19 +5197,20 @@ md_apply_fix (fixS *fixP, valueT *valP, segT seg)
     case BFD_RELOC_RISCV_PCREL_LO12_I:
       /* Resolve the pcrel_lo relocation with local symbol.
 	 Fill in a tentative value to improve objdump readability for -mrelax,
-	 and set fx_done for -mno-relax.  */
+	 and set fx_done for -mno-relax.
+   If we are compiling OTBN code, do not add the offset to the PC. */
       {
 	bfd_vma location_pcrel_hi = S_GET_VALUE (fixP->fx_addsy) + *valP;
 	riscv_pcrel_hi_fixup search =
 		{(const asection *) seg, location_pcrel_hi, 0, 0};
 	riscv_pcrel_hi_fixup *entry = htab_find (riscv_pcrel_hi_fixup_hash,
 						 &search);
-	if (entry && entry->symbol
-	    && S_IS_LOCAL (entry->symbol)
-	    && S_GET_SEGMENT (entry->symbol) == seg)
+	if (entry && entry->symbol &&
+      ((S_IS_LOCAL(entry->symbol) && S_GET_SEGMENT(entry->symbol) == seg) ||
+           riscv_arch_is_otbn))
 	  {
-	    bfd_vma target = entry->target;
-	    bfd_vma value = target - entry->address;
+      bfd_vma target = entry->target;
+      bfd_vma value = riscv_arch_is_otbn ? target : target - entry->address;
 	    if (fixP->fx_r_type == BFD_RELOC_RISCV_PCREL_LO12_S)
 	      bfd_putl32 (bfd_getl32 (buf) | ENCODE_STYPE_IMM (value), buf);
 	    else

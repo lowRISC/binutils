@@ -268,6 +268,70 @@ static inline unsigned int riscv_insn_length (insn_t insn)
 
 /* RV fields.  */
 
+/* OTBN operand masks. */
+#define OP_MASK_SHIFT_TYPE 0x1
+#define OP_SH_SHIFT_TYPE 30
+#define OP_MASK_SHIFT_AMOUNT 0x1f
+#define OP_SH_SHIFT_AMOUNT 25
+#define OP_MASK_FLAG_GROUP 0x1
+#define OP_SH_FLAG_GROUP 31
+#define OP_MASK_INCD 0x1
+#define OP_SH_INCD 7
+#define OP_MASK_INC1 0x1
+#define OP_SH_INC1 8
+#define OP_MASK_OFF0 0x7f
+#define OP_SH_OFF0 25
+#define OP_MASK_OFF1 0x7
+#define OP_SH_OFF1 9
+#define OP_MASK_BN_WRS2 0x1f
+#define OP_SH_BN_WRS2 20
+#define OP_MASK_BN_WRS1 0x1f
+#define OP_SH_BN_WRS1 15
+#define OP_MASK_BN_WRD 0x1f
+#define OP_SH_BN_WRD 7
+#define OP_MASK_BN_Q2 0x3
+#define OP_SH_BN_Q2 27
+#define OP_MASK_BN_Q1 0x3
+#define OP_SH_BN_Q1 25
+#define OP_MASK_BN_ACC_SH 0x3
+#define OP_SH_BN_ACC_SH 13
+#define OP_MASK_BN_GRD_INC 0x1
+#define OP_SH_BN_GRD_INC 7
+#define OP_MASK_BN_GRS_INC 0x1
+#define OP_SH_BN_GRS_INC 9
+#define OP_MASK_BN_INCD 0x1
+#define OP_SH_BN_INCD 7
+#define OP_MASK_BN_INC1 0x1
+#define OP_SH_BN_INC1 8
+#define OP_MASK_BN_OFF0 0x7f
+#define OP_SH_BN_OFF0 25
+#define OP_MASK_BN_OFF1 0x7
+#define OP_SH_BN_OFF1 9
+#define OP_MASK_BN_SHIFT_TYPE 0x1
+#define OP_SH_BN_SHIFT_TYPE 30
+#define OP_MASK_BN_SHIFT_AMOUNT 0x1f
+#define OP_SH_BN_SHIFT_AMOUNT 25
+#define OP_MASK_BN_FLAG_GROUP 0x1
+#define OP_SH_BN_FLAG_GROUP 31
+#define OP_MASK_BN_FLAG_SEL 0x3
+#define OP_SH_BN_FLAG_SEL 25
+#define OP_MASK_BN_RSHI_IMM0 0x1
+#define OP_SH_BN_RSHI_IMM0 14
+#define OP_MASK_BN_RSHI_IMM1 0x7f
+#define OP_SH_BN_RSHI_IMM1 25
+#define OP_MASK_BN_IMM 0x3ff
+#define OP_SH_BN_IMM 20
+#define OP_MASK_BN_MULQACC_SO_DH 0x1
+#define OP_SH_BN_MULQACC_SO_DH 29
+#define OP_MASK_BN_WSR 0xff
+#define OP_SH_BN_WSR 20
+#define OP_MASK_LOOP_SZ 0xfff
+#define OP_SH_LOOP_SZ 20
+#define OP_MASK_LOOP_ITS0 0x1f
+#define OP_SH_LOOP_ITS0 7
+#define OP_MASK_LOOP_ITS1 0x1f
+#define OP_SH_LOOP_ITS1 15
+
 #define OP_MASK_OP		0x7f
 #define OP_SH_OP		0
 #define OP_MASK_RS2		0x1f
@@ -404,6 +468,9 @@ static inline unsigned int riscv_insn_length (insn_t insn)
 
 #define NGPR 32
 #define NFPR 32
+#define NWDR 32
+#define NWDRQ 128
+#define NWDRH 64
 
 /* These fake label defines are use by both the assembler, and
    libopcodes.  The assembler uses this when it needs to generate a fake
@@ -456,6 +523,7 @@ enum riscv_insn_class
   INSN_CLASS_NONE,
 
   INSN_CLASS_I,
+  INSN_CLASS_OTBN,
   INSN_CLASS_C,
   INSN_CLASS_M,
   INSN_CLASS_F,
@@ -670,12 +738,18 @@ enum riscv_seg_mstate
   MAP_INSN,		/* Instructions.  */
 };
 
-#define NRC (4 + 1)     /* Max characters in register names, incl nul.  */
+#define NRC (5 + 1)     /* Max characters in register names, incl nul.  */
 
 extern const char riscv_gpr_names_numeric[NGPR][NRC];
 extern const char riscv_gpr_names_abi[NGPR][NRC];
 extern const char riscv_fpr_names_numeric[NFPR][NRC];
 extern const char riscv_fpr_names_abi[NFPR][NRC];
+extern const char riscv_wdr_names_numeric[NWDR][NRC];
+extern const char riscv_wdr_q_names_numeric[NWDRQ][NRC];
+extern const char riscv_wdr_h_names_numeric[NWDRH][NRC];
+extern const char * const riscv_otbn_fg[2];
+extern const char * const riscv_otbn_wsr[8];
+extern const char * const riscv_otbn_sel_fg[12];
 extern const char * const riscv_rm[8];
 extern const char * const riscv_pred_succ[16];
 extern const char riscv_vecr_names_numeric[NVECR][NRC];

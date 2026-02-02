@@ -1335,6 +1335,7 @@ static struct riscv_supported_ext riscv_supported_std_ext[] =
   {"b",		ISA_SPEC_CLASS_DRAFT,		1, 0, 0 },
   {"v",		ISA_SPEC_CLASS_DRAFT,		1, 0, 0 },
   {"h",		ISA_SPEC_CLASS_DRAFT,		1, 0, 0 },
+  {"+",		ISA_SPEC_CLASS_DRAFT,		1, 0, 0 },
   {NULL, 0, 0, 0, 0}
 };
 
@@ -1618,7 +1619,7 @@ riscv_recognized_prefixed_ext (const char *ext)
 }
 
 /* Canonical order for single letter extensions.  */
-static const char riscv_ext_canonical_order[] = "eigmafdqlcbkjtpvnh";
+static const char riscv_ext_canonical_order[] = "eigmafdqlcbkjtpvnh+";
 
 /* Array is used to compare the orders of standard extensions quickly.  */
 static int riscv_ext_order[26] = {0};
@@ -1788,6 +1789,7 @@ riscv_get_default_ext_version (enum riscv_spec_class *default_isa_spec,
       table = riscv_supported_std_ext;
     }
 
+
   int i = 0;
   while (table != NULL && table[i].name != NULL)
     {
@@ -1938,7 +1940,7 @@ riscv_parse_extensions (riscv_parse_subset_t *rps,
 			const char *p)
 {
   /* First letter must start with i, e or g.  */
-  if (*p != 'e' && *p != 'i' && *p != 'g')
+  if (*p != 'e' && *p != 'i' && *p != 'g' && *p != '+')
     {
       rps->error_handler
 	(_("%s: first ISA extension must be `e', `i' or `g'"),
@@ -2569,6 +2571,8 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
     {
     case INSN_CLASS_I:
       return riscv_subset_supports (rps, "i");
+    case INSN_CLASS_OTBN:
+      return riscv_subset_supports (rps, "+");
     case INSN_CLASS_ZICBOM:
       return riscv_subset_supports (rps, "zicbom");
     case INSN_CLASS_ZICBOP:
@@ -2854,6 +2858,8 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
     {
     case INSN_CLASS_I:
       return "i";
+    case INSN_CLASS_OTBN:
+      return "+";
     case INSN_CLASS_ZICBOM:
       return "zicbom";
     case INSN_CLASS_ZICBOP:
