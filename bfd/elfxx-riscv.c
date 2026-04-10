@@ -1518,6 +1518,7 @@ static struct riscv_supported_ext riscv_supported_vendor_x_ext[] =
   {"xsfvqmaccqoq",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0},
   {"xsfvqmaccdod",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0},
   {"xsfvfnrclipxfqf",	ISA_SPEC_CLASS_DRAFT,	1, 0, 0},
+  {"xlrotbn",		ISA_SPEC_CLASS_DRAFT, 1, 0, 0},
   {NULL, 0, 0, 0, 0}
 };
 
@@ -1937,15 +1938,6 @@ riscv_parse_extensions (riscv_parse_subset_t *rps,
 			const char *arch,
 			const char *p)
 {
-  /* First letter must start with i, e or g.  */
-  if (*p != 'e' && *p != 'i' && *p != 'g')
-    {
-      rps->error_handler
-	(_("%s: first ISA extension must be `e', `i' or `g'"),
-	 arch);
-      return NULL;
-    }
-
   while (*p != '\0')
     {
       if (*p == '_')
@@ -2081,9 +2073,30 @@ riscv_parse_add_implicit_subsets (riscv_parse_subset_t *rps)
 static bool
 riscv_parse_check_conflicts (riscv_parse_subset_t *rps)
 {
+  riscv_subset_t *s = NULL;
   riscv_subset_t *subset = NULL;
   int xlen = *rps->xlen;
   bool no_conflict = true;
+
+  if (riscv_subset_supports (rps, "xlrotbn")
+      && xlen != 32)
+    {
+      rps->error_handler (_("rv%d does not support the `xlrotbn' extension"), xlen);
+      no_conflict = false;
+    }
+
+  int num_exts = 0;
+  for (s = rps->subset_list->head; s != NULL; s = s->next)
+    {
+      num_exts += 1;
+    }
+  if (riscv_subset_supports(rps, "xlrotbn")
+      && num_exts > 1)
+    {
+      rps->error_handler
+	(_("`xlrotbn' extension is incompatible with all other extensions"));
+      no_conflict = false;
+    }
 
   if (riscv_subset_supports (rps, "e")
       && riscv_subset_supports (rps, "h"))
@@ -2131,7 +2144,7 @@ riscv_parse_check_conflicts (riscv_parse_subset_t *rps)
 
   bool support_zve = false;
   bool support_zvl = false;
-  riscv_subset_t *s = rps->subset_list->head;
+  s = rps->subset_list->head;
   for (; s != NULL; s = s->next)
     {
       if (!support_zve
@@ -2244,6 +2257,27 @@ riscv_parse_subset (riscv_parse_subset_t *rps,
   /* Parse single standard and prefixed extensions.  */
   if (riscv_parse_extensions (rps, arch, p) == NULL)
     return false;
+
+  /* Check the first extension */
+  riscv_subset_t *s = rps->subset_list->head;
+  if (s == NULL) {
+	  rps->error_handler (
+	    _("%s: ISA string contains no base or extensions"),
+	    arch);
+    return false;
+  }
+  const char *first_ext = s->name;
+  if (!(0 == strncmp(first_ext, "i", 1))
+    && !(0 == strncmp(first_ext, "e", 1))
+    && !(0 == strncmp(first_ext, "g", 1))
+    && !(0 == strncmp(first_ext, "xlrotbn", sizeof("xlrotbn"))))
+  {
+    rps->error_handler
+      (_("%s: first ISA extension must be `e', `i', `g', or `xlrotbn'"),
+       arch);
+    return false;
+  }
+
 
   /* Finally add implicit extensions according to the current
      extensions.  */
@@ -2836,6 +2870,14 @@ riscv_multi_subset_supports (riscv_parse_subset_t *rps,
       return riscv_subset_supports (rps, "xsfvqmaccdod");
     case INSN_CLASS_XSFVFNRCLIPXFQF:
       return riscv_subset_supports (rps, "xsfvfnrclipxfqf");
+    case INSN_CLASS_XLROTBN:
+      return riscv_subset_supports (rps, "xlrotbn");
+    case INSN_CLASS_I_OR_XLROTBN:
+      return riscv_subset_supports (rps, "i")
+        || riscv_subset_supports (rps, "xlrotbn");
+    case INSN_CLASS_ZICSR_OR_XLROTBN:
+      return riscv_subset_supports (rps, "zicsr")
+        || riscv_subset_supports (rps, "xlrotbn");
     default:
       rps->error_handler
         (_("internal: unreachable INSN_CLASS_*"));
@@ -3145,6 +3187,12 @@ riscv_multi_subset_supports_ext (riscv_parse_subset_t *rps,
       return "xtheadzvamo";
     case INSN_CLASS_XSFCEASE:
       return "xsfcease";
+    case INSN_CLASS_XLROTBN:
+      return "xlrotbn";
+    case INSN_CLASS_I_OR_XLROTBN:
+      return _("i' or `xlrotbn");
+    case INSN_CLASS_ZICSR_OR_XLROTBN:
+      return _("zicsr' or `xlrotbn");
     default:
       rps->error_handler
         (_("internal: unreachable INSN_CLASS_*"));

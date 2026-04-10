@@ -568,6 +568,9 @@ enum riscv_insn_class
   INSN_CLASS_XSFVQMACCQOQ,
   INSN_CLASS_XSFVQMACCDOD,
   INSN_CLASS_XSFVFNRCLIPXFQF,
+  INSN_CLASS_XLROTBN,
+  INSN_CLASS_I_OR_XLROTBN,
+  INSN_CLASS_ZICSR_OR_XLROTBN,
 };
 
 /* This structure holds information for a particular instruction.  */
